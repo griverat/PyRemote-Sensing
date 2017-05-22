@@ -1,0 +1,28 @@
+***This module is intended for Python 3. It can be modified for Python 2***
+==========================================================================================
+Module: read_mod_aerosol_and_dummp_ascii.py
+==========================================================================================
+Disclaimer: The code is for demonstration purposes only. Users are responsible to check for accuracy and revise to fit their objective.
+
+Author: Justin Roberts-Pierel, 2015 
+Organization: NASA ARSET
+Programming Language: Python 
+Purpose: To save a MODIS HDF4 file in ASCII format, saving time, lat, lon, and other SDS dependent on file type 	(see script)
+
+Required Python packages: pyHDF, numpy, basemap, matplotlib, time, calendar
+==========================================================================================
+1. Create a (tab delimited) .txt file containing the names of the files you would like to analyze 
+(see example 'fileList.txt')
+
+2. In order to use this python script, make sure that the script, any files you plan to analyze, and the list of file names are in the same folder (i.e. Downloads or Desktop). 
+
+3. Open the command prompt and navigate to the folder containing the .py, .hdf, and fileList (.txt) files
+
+4. Once in the folder, run the script with the command: python read_mod_aerosol_and_dummp_ascii.py
+
+5. Follow the prompts to execute the script 
+
+6. The saved text file(s) will appear in the same folder as this script and the HDF4 file(s). Title will be the 	same as the HDF4 file with ".hdf" replaced with ".txt"
+==========================================================================================
+This script can be easily modified to accept other SDS or HDF4 files.
+
