@@ -4,6 +4,9 @@ Created on Tue Mar 28 11:31:25 2017
 
 @author: gerar
 """
+#This script was made to filter data by location: South, North or Center
+#It reads an ASCII with lat, lon and data columns
+#It returns an ASCII of the same format with location headers
 
 #%%
 import os
