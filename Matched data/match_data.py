@@ -4,7 +4,20 @@ Created on Mon Feb 06 17:36:50 2017
 
 @author: gerar
 """
-
+# This code will match the date and time of satellite data
+# with the in situ data only retrieving coincides within +-30min
+# of the sensed data.
+# The MODIS and AERONET data must be on different ASCIIs with the
+# same structure as follows:
+# *{station}_modis.txt
+#	DATE TIME MODIS_DATA
+# *{station}_aeronet.txt
+#	DATE TIME AERONET_DATA
+#
+# The output file will have the following structure:
+# *{station}_matched_data
+#	DATE TIME_MODIS AOD_MODIS TIME_AERONET AOD_AERONET
+	
 #%%
 #Importo las librerias:
 #   1. os : que me ayudara a buscar los archivos en el directorio
@@ -40,7 +53,7 @@ class Match_Data(object):
         self.aeronet_end.columns=["Time_AERONET", "AOD_AERONET"]
         print "Archivos Leidos.\nProcesando..."
 
-    #Defino la funcion que encontrara los vaores cercanos a la fecha y hora MODIS
+    #Defino la funcion que encontrara los valores cercanos a la fecha y hora MODIS
     def find_closest_date(self, timepoint, time_series):
         # Tomo de entrada una pd.Timestamp() y una pd.Series con fechas
         # calculo el delta entre `timepoint` y cada fecha en`time_series`
@@ -60,7 +73,7 @@ class Match_Data(object):
         #En caso de no haber la fecha MODIS en la base de datos AERONET
         #lleno los valosre con NaT(Not a Time) y NaN(Not a Number)
         elif len(passer[0]) == 0:
-            res = {"closest_time": "NaN","aod_value": "NaN"}
+            res = {"closest_time": np.nan,"aod_value": np.nan}
             idx = ['closest_time', 'aod_value']
             return pd.Series(res, index=idx)
     
