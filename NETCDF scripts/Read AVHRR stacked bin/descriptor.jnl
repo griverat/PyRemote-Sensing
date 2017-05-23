@@ -1,0 +1,155 @@
+SET MEMORY/SIZE=100
+use AVHRR_ONLY_V2_20060101.nc
+set var/bad=999.0 SST
+list/file="sst.bin"/format="unformatted"/I=1:1440/J=1:720/order=xy/nohead SST
+
+SET MEMORY/SIZE=100
+use AVHRR_ONLY_V2_20060102.nc
+set var/bad=999.0 SST
+list/append/file="sst.bin"/format="unformatted"/I=1:1440/J=1:720/order=xy/nohead SST
+
+SET MEMORY/SIZE=100
+use AVHRR_ONLY_V2_20060103.nc
+set var/bad=999.0 SST
+list/append/file="sst.bin"/format="unformatted"/I=1:1440/J=1:720/order=xy/nohead SST
+
+SET MEMORY/SIZE=100
+use AVHRR_ONLY_V2_20060104.nc
+set var/bad=999.0 SST
+list/append/file="sst.bin"/format="unformatted"/I=1:1440/J=1:720/order=xy/nohead SST
+
+SET MEMORY/SIZE=100
+use AVHRR_ONLY_V2_20060105.nc
+set var/bad=999.0 SST
+list/append/file="sst.bin"/format="unformatted"/I=1:1440/J=1:720/order=xy/nohead SST
+
+SET MEMORY/SIZE=100
+use AVHRR_ONLY_V2_20060106.nc
+set var/bad=999.0 SST
+list/append/file="sst.bin"/format="unformatted"/I=1:1440/J=1:720/order=xy/nohead SST
+
+SET MEMORY/SIZE=100
+use AVHRR_ONLY_V2_20060107.nc
+set var/bad=999.0 SST
+list/append/file="sst.bin"/format="unformatted"/I=1:1440/J=1:720/order=xy/nohead SST
+
+SET MEMORY/SIZE=100
+use AVHRR_ONLY_V2_20060108.nc
+set var/bad=999.0 SST
+list/append/file="sst.bin"/format="unformatted"/I=1:1440/J=1:720/order=xy/nohead SST
+
+SET MEMORY/SIZE=100
+use AVHRR_ONLY_V2_20060109.nc
+set var/bad=999.0 SST
+list/append/file="sst.bin"/format="unformatted"/I=1:1440/J=1:720/order=xy/nohead SST
+
+SET MEMORY/SIZE=100
+use AVHRR_ONLY_V2_20060110.nc
+set var/bad=999.0 SST
+list/append/file="sst.bin"/format="unformatted"/I=1:1440/J=1:720/order=xy/nohead SST
+
+SET MEMORY/SIZE=100
+use AVHRR_ONLY_V2_20060111.nc
+set var/bad=999.0 SST
+list/append/file="sst.bin"/format="unformatted"/I=1:1440/J=1:720/order=xy/nohead SST
+
+SET MEMORY/SIZE=100
+use AVHRR_ONLY_V2_20060112.nc
+set var/bad=999.0 SST
+list/append/file="sst.bin"/format="unformatted"/I=1:1440/J=1:720/order=xy/nohead SST
+
+SET MEMORY/SIZE=100
+use AVHRR_ONLY_V2_20060113.nc
+set var/bad=999.0 SST
+list/append/file="sst.bin"/format="unformatted"/I=1:1440/J=1:720/order=xy/nohead SST
+
+SET MEMORY/SIZE=100
+use AVHRR_ONLY_V2_20060114.nc
+set var/bad=999.0 SST
+list/append/file="sst.bin"/format="unformatted"/I=1:1440/J=1:720/order=xy/nohead SST
+
+SET MEMORY/SIZE=100
+use AVHRR_ONLY_V2_20060115.nc
+set var/bad=999.0 SST
+list/append/file="sst.bin"/format="unformatted"/I=1:1440/J=1:720/order=xy/nohead SST
+
+SET MEMORY/SIZE=100
+use AVHRR_ONLY_V2_20060116.nc
+set var/bad=999.0 SST
+list/append/file="sst.bin"/format="unformatted"/I=1:1440/J=1:720/order=xy/nohead SST
+
+SET MEMORY/SIZE=100
+use AVHRR_ONLY_V2_20060117.nc
+set var/bad=999.0 SST
+list/append/file="sst.bin"/format="unformatted"/I=1:1440/J=1:720/order=xy/nohead SST
+
+SET MEMORY/SIZE=100
+use AVHRR_ONLY_V2_20060118.nc
+set var/bad=999.0 SST
+list/append/file="sst.bin"/format="unformatted"/I=1:1440/J=1:720/order=xy/nohead SST
+
+SET MEMORY/SIZE=100
+use AVHRR_ONLY_V2_20060119.nc
+set var/bad=999.0 SST
+list/append/file="sst.bin"/format="unformatted"/I=1:1440/J=1:720/order=xy/nohead SST
+
+SET MEMORY/SIZE=100
+use AVHRR_ONLY_V2_20060120.nc
+set var/bad=999.0 SST
+list/append/file="sst.bin"/format="unformatted"/I=1:1440/J=1:720/order=xy/nohead SST
+
+SET MEMORY/SIZE=100
+use AVHRR_ONLY_V2_20060121.nc
+set var/bad=999.0 SST
+list/append/file="sst.bin"/format="unformatted"/I=1:1440/J=1:720/order=xy/nohead SST
+
+SET MEMORY/SIZE=100
+use AVHRR_ONLY_V2_20060122.nc
+set var/bad=999.0 SST
+list/append/file="sst.bin"/format="unformatted"/I=1:1440/J=1:720/order=xy/nohead SST
+
+SET MEMORY/SIZE=100
+use AVHRR_ONLY_V2_20060123.nc
+set var/bad=999.0 SST
+list/append/file="sst.bin"/format="unformatted"/I=1:1440/J=1:720/order=xy/nohead SST
+
+SET MEMORY/SIZE=100
+use AVHRR_ONLY_V2_20060124.nc
+set var/bad=999.0 SST
+list/append/file="sst.bin"/format="unformatted"/I=1:1440/J=1:720/order=xy/nohead SST
+
+SET MEMORY/SIZE=100
+use AVHRR_ONLY_V2_20060125.nc
+set var/bad=999.0 SST
+list/append/file="sst.bin"/format="unformatted"/I=1:1440/J=1:720/order=xy/nohead SST
+
+SET MEMORY/SIZE=100
+use AVHRR_ONLY_V2_20060126.nc
+set var/bad=999.0 SST
+list/append/file="sst.bin"/format="unformatted"/I=1:1440/J=1:720/order=xy/nohead SST
+
+SET MEMORY/SIZE=100
+use AVHRR_ONLY_V2_20060127.nc
+set var/bad=999.0 SST
+list/append/file="sst.bin"/format="unformatted"/I=1:1440/J=1:720/order=xy/nohead SST
+
+SET MEMORY/SIZE=100
+use AVHRR_ONLY_V2_20060128.nc
+set var/bad=999.0 SST
+list/append/file="sst.bin"/format="unformatted"/I=1:1440/J=1:720/order=xy/nohead SST
+
+SET MEMORY/SIZE=100
+use AVHRR_ONLY_V2_20060129.nc
+set var/bad=999.0 SST
+list/append/file="sst.bin"/format="unformatted"/I=1:1440/J=1:720/order=xy/nohead SST
+
+SET MEMORY/SIZE=100
+use AVHRR_ONLY_V2_20060130.nc
+set var/bad=999.0 SST
+list/append/file="sst.bin"/format="unformatted"/I=1:1440/J=1:720/order=xy/nohead SST
+
+SET MEMORY/SIZE=100
+use AVHRR_ONLY_V2_20060131.nc
+set var/bad=999.0 SST
+list/append/file="sst.bin"/format="unformatted"/I=1:1440/J=1:720/order=xy/nohead SST
+
