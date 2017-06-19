@@ -15,7 +15,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import pandas as pd
 #from datetime import timedelta as delt
-#from scipy.stats.stats import pearsonr
+from scipy.stats.stats import pearsonr
 
 #%%
 #Defino los valores máximos de los ejes en el plot
@@ -24,24 +24,26 @@ y_limit = 0.9
 
 #%%
 #Datos de la estacion|
-AERONET_station = "Rio Branco"
-years_range="2015-2016"
+AERONET_station = "Granada"
+years_range="2002-2017"
 x_label = r"AERONET Level 2.0 AOD $\mu m$"
-y_label = "MODIS AQUA AOD at 10km"
+y_label = "MODIS TERRA AOD at 10km"
 
 #%%
 #Cantidad de pixeles a tomar en promedio
-grid = "1x1"
+grid = "3x3"
 #%%
 #Defino la fuente estilo LaTeX
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
 
 #%%
-#Defino la funcion para rmse
+#Defino la funcion para rmse y mae
 def rmse(predictions, targets):
     return np.sqrt(((predictions - targets) ** 2).mean())
-    
+
+def mae(predictions,targets):
+    return np.abs((predictions - targets)).mean()
 #%%
 #Encuentro el archivo en formato txt a plottear
 file_to_plot = [x for x in os.listdir(os.getcwd()) \
@@ -85,10 +87,13 @@ m_minus,b_minus = np.polyfit(aeronet_data[idx],ee_minus[idx],1)
 
 #%%
 #Calculo del R del grafio
-#r_coef = pearsonr(aeronet_data[idx],modis_data[idx])
+r_coef = pearsonr(aeronet_data[idx],modis_data[idx])
 
 #Calculo del RMSE
 rmse_value = rmse(modis_data[idx],aeronet_data[idx])
+
+#Calculo del MAE
+mae_value = mae(modis_data[idx],aeronet_data[idx])
 #%%
 #Calculo la FOE para otra grafica
 FOE = (modis_data-aeronet_data) / _ee
@@ -110,7 +115,7 @@ axes.scatter(xwithin_ee,within_ee,edgecolors="black",linewidth=1,s=10,c="red",la
 axes.scatter(xbelow_ee,below_ee,edgecolors="black",linewidth=1,s=10,c="green",label="%\tBelow EE\t=\t{:.2%}".format(float(len(below_ee))/n_tot))
 
 #Inserto la leyenda del plot
-axes.legend(loc=2,scatterpoints=1,labelspacing=0.7,fontsize=13.5,handlelength=0.6,frameon=False)
+axes.legend(loc=2,scatterpoints=1,labelspacing=0.5,fontsize=13.5,handlelength=0.6,frameon=False)
 
 #Dibujo las lineas 1:1, EE+ y EE-
 axes.plot(_11line,_11line, color ='black',lw=0.6)
@@ -124,9 +129,9 @@ axes.set_xlabel(x_label,fontsize=19)
 #Nombre de la estación con el rango de años
 axes.text(0.75,0.2,"({})\n\n({})".format(AERONET_station,years_range),\
           ha="center",va="center",fontsize=17,transform=axes.transAxes)
-#axes.text(0.08,0.78,"(R={:.3f}, RMSE={:.3f})".format(r_coef[0],rmse_value),fontsize=13.5,\
-#          transform=axes.transAxes)
-axes.text(0.08,0.76,"(N={})".format(n_tot),fontsize=13.5,\
+axes.text(0.075,0.785,"(R={:.3f}, RMSE={:.3f})".format(r_coef[0],rmse_value),fontsize=13.5,\
+          transform=axes.transAxes)
+axes.text(0.075,0.74,"(MAE={:.3f}, N={})".format(mae_value,n_tot),fontsize=13.5,\
           transform=axes.transAxes)
 
 #Limites del grafico con grillas
