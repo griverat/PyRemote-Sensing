@@ -44,7 +44,7 @@ except:
 #%%
 #Bucle sobre los archivos en mi lista
 #Obtengo los nombres de las SDS
-with open("{}5x5_MODIS.txt".format(location),"a") as file_end, open("{}3x3_MODIS.txt".format(location),"a") as file3x3_end:
+with open("{}5x5_MODIS.txt".format(location),"a") as file_end, open("{}3x3_MODIS.txt".format(location),"a") as file3x3_end, open("{}1x1_MODIS.txt".format(location),'a') as file1x1_end:
     for file_name in files_list:
         _aod = file_template.format("EOS","EOS_SWATH",file_name,sds_name)
         _lat = file_template.format("SDS","UNKNOWN",file_name,1)
@@ -82,6 +82,12 @@ with open("{}5x5_MODIS.txt".format(location),"a") as file_end, open("{}3x3_MODIS
             
         #Obtenermos la data del AOD
         data = sds.ReadAsArray()
+        #Realizo un pad al array de 2 para poder promediar en una caja de 5x5
+        def padwithtens(vector, pad_width, iaxis, kwargs):
+            vector[:pad_width[0]] = np.nan
+            vector[-pad_width[1]:] = np.nan
+            return vector
+        data = np.pad(data,2,padwithtens)
         
         #Obtenemos el factor de escala para la SDS del AOD
         scale = float(sds.GetMetadata()['scale_factor'])
@@ -137,21 +143,25 @@ with open("{}5x5_MODIS.txt".format(location),"a") as file_end, open("{}3x3_MODIS
             end_time = ":".join([str(item).zfill(2) for item in mtime])
     
 #%%
-        if x < 2:
-            x+=1
-        if x > data.shape[0]-3:
-            x-=1
-        if y < 2:
-            y+=1
-        if y > data.shape[1]-3:
-            y-=1
+#        if x < 2:
+#            x+=1
+#        if x > data.shape[0]-3:
+#            x-=1
+#        if y < 2:
+#            y+=1
+#        if y > data.shape[1]-3:
+#            y-=1
+        x +=2
+        y +=2
         #Se calcula el promedio en una grilla de 5x5
         five_by_five = data[x-2:x+3,y-2:y+3]
         five_by_five = five_by_five.astype(float)
         five_by_five[five_by_five<0.0] = np.nan
         five_by_five[five_by_five == float(fill_value)] = np.nan
         three_by_three = five_by_five[1:4,1:4]
+        one_by_one = three_by_three[1][1]
         
+        __nnan = np.count_nonzero(~np.isnan(one_by_one))
         _nnan = np.count_nonzero(~np.isnan(three_by_three))
         nnan = np.count_nonzero(~np.isnan(five_by_five))
         if nnan == 0:
@@ -160,7 +170,14 @@ with open("{}5x5_MODIS.txt".format(location),"a") as file_end, open("{}3x3_MODIS
         else:
             if _nnan == 0:
                 del _nnan
+                del __nnan
             else:
+                if __nnan ==0:
+                    pass
+                else:
+                    one_by_one *= scale
+                    if one_by_one > 0 :
+                        file1x1_end.write("{}\t{}\t{}\n".format(day,end_time,one_by_one))
                 three_by_three *= scale
                 three_by_three_avrg = np.nanmean(three_by_three)
                 if three_by_three_avrg > 0 :

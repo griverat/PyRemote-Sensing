@@ -31,7 +31,7 @@ y_label = "MODIS AQUA AOD at 10km"
 
 #%%
 #Cantidad de pixeles a tomar en promedio
-grid = "3x3"
+grid = "1x1"
 #%%
 #Defino la fuente estilo LaTeX
 matplotlib.rcParams['mathtext.fontset'] = 'stix'

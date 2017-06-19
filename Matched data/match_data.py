@@ -47,7 +47,8 @@ class Match_Data(object):
         self.modis_end.columns = ["Date_MODIS", "Time_MODIS", "AOD_MODIS"]
         
         #AERONET
-        self.aeronet_data = pd.read_table(aeronet_file, header = None, parse_dates = [[0,1]], usecols=[0,1])
+        dateparse = lambda x: pd.datetime.strptime(x, '%d/%m/%Y %H:%M:%S')
+        self.aeronet_data = pd.read_table(aeronet_file, header = None, parse_dates = [[0,1]], usecols=[0,1],date_parser=dateparse)
         self.aeronet_end = pd.read_table(aeronet_file, header = None, usecols=[1,2])
         self.aeronet_data.columns = ["Date_AERONET Time_AERONET"]
         self.aeronet_end.columns=["Time_AERONET", "AOD_AERONET"]
@@ -73,7 +74,7 @@ class Match_Data(object):
         #En caso de no haber la fecha MODIS en la base de datos AERONET
         #lleno los valosre con NaT(Not a Time) y NaN(Not a Number)
         elif len(passer[0]) == 0:
-            res = {"closest_time": np.nan,"aod_value": np.nan}
+            res = {"closest_time": "NaN","aod_value": "NaN"}
             idx = ['closest_time', 'aod_value']
             return pd.Series(res, index=idx)
     
