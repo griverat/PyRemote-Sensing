@@ -135,7 +135,7 @@ with open("{}5x5_MODIS.txt".format(location),"a") as file_end, open("{}3x3_MODIS
             passing_time = int(time_for_pixel*(x+1)/60)
         mtime = [int(t) for t in mtime.split(":")]
         mtime[1] = mtime[1] + passing_time
-        if mtime[1] > 60:
+        if mtime[1] >= 60:
             mtime[1] -= 60
             mtime[0] += 1
             end_time = ":".join([str(item).zfill(2) for item in mtime])
