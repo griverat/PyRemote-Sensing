@@ -18,8 +18,8 @@ def get_data(lat,lon,tif_file):
     ulY = geoMatrix[3]
     xDist = geoMatrix[1]
     yDist = geoMatrix[5]
-    lon_pixel = int(math.ceil(abs((lon - ulX) / xDist)))
-    lat_pixel = int(math.ceil(abs((ulY - lat) / yDist)))
+    lon_pixel = int(math.ceil(round(abs((lon - ulX) / xDist),5)))
+    lat_pixel = int(math.ceil(round(abs((ulY - lat) / yDist),5)))
     ndvi = data.ReadAsArray()
     data = None
     return ndvi[lat_pixel][lon_pixel]*0.004-0.1
@@ -31,7 +31,7 @@ def check_dir():
 
 def main(user_lat,user_lon):
     check_dir()
-    files = os.listdir(os.getcwd())
+    files = [x for x in os.listdir(os.getcwd()) if x.endswith('.tif')]
     num_files = len(files)
     ndvi_data = pd.DataFrame(index = np.arange(0,num_files),columns=('Date','NDVI_data'))
     print 'Comenzando lectura para la ubicacion ({},{})\n'.format(user_lat,user_lon)

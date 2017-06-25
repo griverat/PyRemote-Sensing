@@ -36,7 +36,7 @@ def natural_sort(files_list):
 
 def main(user_lat,user_lon):
     check_dir()
-    files = natural_sort(os.listdir(os.getcwd()))
+    files = natural_sort([x for x in os.listdir(os.getcwd()) if x.endswith('.tif')])
     num_files = len(files)
     ndvi_data = pd.DataFrame(index = np.arange(0,num_files),columns=('Date','NDVI_data'))
     dates = pd.date_range('1981-07-01','2015-12-31',freq='SM')
