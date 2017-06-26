@@ -11,11 +11,11 @@ import pandas as pd
 
 #%%
 #Datos de la estacion
-AERONET_station = "Rio Branco"
+AERONET_station = "Granada"
 
 #%%
 #Cantidad de pixeles a tomar en promedio
-grid = "5x5"
+grid = "3x3"
 
 #%%
 #Encuentro el archivo en formato txt a plottear
