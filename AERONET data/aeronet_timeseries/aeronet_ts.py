@@ -65,7 +65,7 @@ def plot_series(pd_indata,station_name,ppath):
         axes2.set_ylabel('440-870Angstrom',fontsize=15)
         axes2.set_xlabel('Tiempo (dias)',fontsize=15)
         axes2.legend(loc=0,numpoints=1,fontsize = 9,fancybox=True)
-        fig.savefig(os.path.join(ppath,"{}_angstrom.jpeg".format(station_name)),dpi=500,bbox_inches='tight')
+        fig2.savefig(os.path.join(ppath,"{}_angstrom.jpeg".format(station_name)),dpi=500,bbox_inches='tight')
         ##
         
         axes.set_ylim([0,1.5])
