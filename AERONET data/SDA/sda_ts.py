@@ -73,6 +73,7 @@ def plot_series(pd_indata,station_name,ppath):
                   ,transform=axes2.transAxes)
         axes2.legend(loc=0,numpoints=1,fontsize = 9,fancybox=True)
         fig2.savefig(os.path.join(ppath,"{}_finefrac.png".format(station_name)),dpi=500,bbox_inches='tight')
+        fig2.clf()
         ##
         
         axes.set_ylim([0,1.5])
@@ -94,6 +95,7 @@ def plot_series(pd_indata,station_name,ppath):
         axes.xaxis.set_major_formatter(dates.DateFormatter('%d'))
         axes.legend(loc=0,numpoints=1,fontsize = 9,fancybox=True)
         fig.savefig(os.path.join(ppath,"{}_SDA.png".format(station_name)),dpi=500,bbox_inches='tight')
+        fig.clf()
 
 #%%
 def single_plot(pd_indata,aod_list,date_limits,n,station_name,ppath):
@@ -102,60 +104,64 @@ def single_plot(pd_indata,aod_list,date_limits,n,station_name,ppath):
     
     marker = itertools.cycle(('x', 'v', 's', 'o', '*')) 
     
-    for aod in aod_list:
-        axes.plot(day_df.index,day_df[aod],lw=0.8,marker = marker.next(),ms=2.7)
+    if not day_df.empty:
     
-    hour_values = pd.date_range(day_df.index.min().date(),periods=24,freq='1h')
-    
-    ##
-    fig2, axes2 = plt.subplots(figsize=(9,4))
-    axes2.plot(day_df.index,day_df['FineModeFraction_500nm[eta]'],lw=0.8)
-    axes2.set_ylim([0,1])
-    axes2.set_xlim([hour_values.min(),hour_values.max()])
-    axes2.set_yticks(np.arange(0,1.1,0.1))
-    axes2.set_xticks(hour_values)
-    axes2.xaxis.set_major_locator(dates.HourLocator())
-    axes2.xaxis.set_major_formatter(dates.DateFormatter('%H'))
-    axes2.set_ylabel('SDA Fine Mode Fraction',fontsize=15)
-    axes2.set_xlabel('Tiempo (horas)',fontsize=15)
-    axes2.legend(loc=0,numpoints=1,fontsize = 9,fancybox=True)
-    axes2.text(0.15,0.79\
-              ,day_df.index.min().date().strftime('%d/%m/%Y')\
-              ,ha="center",va="center",fontsize=13\
-              ,bbox=dict(facecolor='none', edgecolor='black', boxstyle='round')\
-              ,transform=axes2.transAxes)
-    axes2.text(0.19,0.9\
-                  ,'{} AERONET Data'.format(station_name)\
+        for aod in aod_list:
+            axes.plot(day_df.index,day_df[aod],lw=0.8,marker = marker.next(),ms=2.7)
+        
+        hour_values = pd.date_range(day_df.index.min().date(),periods=24,freq='1h')
+        
+        ##
+        fig2, axes2 = plt.subplots(figsize=(9,4))
+        axes2.plot(day_df.index,day_df['FineModeFraction_500nm[eta]'],lw=0.8)
+        axes2.set_ylim([0,1])
+        axes2.set_xlim([hour_values.min(),hour_values.max()])
+        axes2.set_yticks(np.arange(0,1.1,0.1))
+        axes2.set_xticks(hour_values)
+        axes2.xaxis.set_major_locator(dates.HourLocator())
+        axes2.xaxis.set_major_formatter(dates.DateFormatter('%H'))
+        axes2.set_ylabel('SDA Fine Mode Fraction',fontsize=15)
+        axes2.set_xlabel('Tiempo (horas)',fontsize=15)
+        axes2.legend(loc=0,numpoints=1,fontsize = 9,fancybox=True)
+        axes2.text(0.15,0.79\
+                  ,day_df.index.min().date().strftime('%d/%m/%Y')\
                   ,ha="center",va="center",fontsize=13\
                   ,bbox=dict(facecolor='none', edgecolor='black', boxstyle='round')\
                   ,transform=axes2.transAxes)
-    fig2.savefig(os.path.join(ppath,"{}_day{}_finefraction.png".format(station_name,day_df.index.min().day)),dpi=500,bbox_inches='tight')
-    ##
+        axes2.text(0.19,0.9\
+                      ,'{} AERONET Data'.format(station_name)\
+                      ,ha="center",va="center",fontsize=13\
+                      ,bbox=dict(facecolor='none', edgecolor='black', boxstyle='round')\
+                      ,transform=axes2.transAxes)
+        fig2.savefig(os.path.join(ppath,"{}_day{}_finefraction.png".format(station_name,day_df.index.min().day)),dpi=500,bbox_inches='tight')
+        fig2.clf()
+        ##
+        
+        axes.set_ylim([0,1.5])
+        axes.set_xlim([hour_values.min(),hour_values.max()])
+        
+        axes.set_yticks(np.arange(0,1.6,0.1))
+        axes.set_xticks(hour_values)
     
-    axes.set_ylim([0,1.5])
-    axes.set_xlim([hour_values.min(),hour_values.max()])
+        axes.set_ylabel('SDA Aerosol Optical Depth',fontsize=15)
+        axes.set_xlabel('Tiempo (horas)',fontsize=15)
+        
+        axes.text(0.19,0.9\
+                  ,'{} AERONET Data'.format(station_name)\
+                  ,ha="center",va="center",fontsize=13\
+                  ,bbox=dict(facecolor='none', edgecolor='black', boxstyle='round')\
+                  ,transform=axes.transAxes)
+        axes.text(0.15,0.79\
+                  ,day_df.index.min().date().strftime('%d/%m/%Y')\
+                  ,ha="center",va="center",fontsize=13\
+                  ,bbox=dict(facecolor='none', edgecolor='black', boxstyle='round')\
+                  ,transform=axes.transAxes)
     
-    axes.set_yticks(np.arange(0,1.6,0.1))
-    axes.set_xticks(hour_values)
-
-    axes.set_ylabel('SDA Aerosol Optical Depth',fontsize=15)
-    axes.set_xlabel('Tiempo (horas)',fontsize=15)
-    
-    axes.text(0.19,0.9\
-              ,'{} AERONET Data'.format(station_name)\
-              ,ha="center",va="center",fontsize=13\
-              ,bbox=dict(facecolor='none', edgecolor='black', boxstyle='round')\
-              ,transform=axes.transAxes)
-    axes.text(0.15,0.79\
-              ,day_df.index.min().date().strftime('%d/%m/%Y')\
-              ,ha="center",va="center",fontsize=13\
-              ,bbox=dict(facecolor='none', edgecolor='black', boxstyle='round')\
-              ,transform=axes.transAxes)
-
-    axes.xaxis.set_major_locator(dates.HourLocator())
-    axes.xaxis.set_major_formatter(dates.DateFormatter('%H'))
-    axes.legend(loc=0,numpoints=1,fontsize = 9,fancybox=True)
-    fig.savefig(os.path.join(ppath,"{}_day{}_SDA.png".format(station_name,day_df.index.min().day)),dpi=500,bbox_inches='tight')
+        axes.xaxis.set_major_locator(dates.HourLocator())
+        axes.xaxis.set_major_formatter(dates.DateFormatter('%H'))
+        axes.legend(loc=0,numpoints=1,fontsize = 9,fancybox=True)
+        fig.savefig(os.path.join(ppath,"{}_day{}_SDA.png".format(station_name,day_df.index.min().day)),dpi=500,bbox_inches='tight')
+        fig.clf()
 
 #%%
 def day_plot(pd_indata,station_name,directory):
@@ -165,6 +171,7 @@ def day_plot(pd_indata,station_name,directory):
     for n in range(len(date_limits)-1):
         single_plot(pd_indata,aod_list,date_limits,n,station_name,directory)
         print "Dia {} listo".format(n+1)
+        break
     
 #%%
 if __name__ == '__main__':

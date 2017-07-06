@@ -93,55 +93,56 @@ def single_plot(pd_indata,aot_list,date_limits,n,station_name,ppath):
     fig,axes = plt.subplots(figsize=(9,4))
     day_df = pd_indata.loc[(date_limits[n]<pd_indata.index)&(pd_indata.index<date_limits[n+1])]
 
-    for aot in aot_list:
-        axes.plot(day_df.index,day_df[aot],lw=0.8)
+    if not day_df.empty:
+        for aot in aot_list:
+            axes.plot(day_df.index,day_df[aot],lw=0.8)
+        
+        hour_values = pd.date_range(day_df.index.min().date(),periods=24,freq='1h')
+        
+        ##
+        fig2, axes2 = plt.subplots(figsize=(9,4))
+        axes2.plot(day_df.index,day_df['440-870Angstrom'],lw=0.8)
+        axes2.set_ylim([-2,2])
+        axes2.set_xlim([hour_values.min(),hour_values.max()])
+        axes2.set_yticks(np.arange(-2,2.1,0.5))
+        axes2.set_xticks(hour_values)
+        axes2.xaxis.set_major_locator(dates.HourLocator())
+        axes2.xaxis.set_major_formatter(dates.DateFormatter('%H'))
+        axes2.set_ylabel('440-870Angstrom',fontsize=15)
+        axes2.set_xlabel('Tiempo (horas)',fontsize=15)
+        axes2.legend(loc=0,numpoints=1,fontsize = 9,fancybox=True)
+        axes2.text(0.1,0.9\
+                  ,day_df.index.min().date().strftime('%d/%m/%Y')\
+                  ,ha="center",va="center",fontsize=13\
+                  ,bbox=dict(facecolor='none', edgecolor='black', boxstyle='round')\
+                  ,transform=axes2.transAxes)
+        fig2.savefig(os.path.join(ppath,"{}_day{}_angstrom.jpeg".format(station_name,day_df.index.min().day)),dpi=500,bbox_inches='tight')
+        ##
+        
+        axes.set_ylim([0,1.5])
+        axes.set_xlim([hour_values.min(),hour_values.max()])
+        
+        axes.set_yticks(np.arange(0,1.6,0.1))
+        axes.set_xticks(hour_values)
     
-    hour_values = pd.date_range(day_df.index.min().date(),periods=24,freq='1h')
+        axes.set_ylabel('Aerosol Optical Thickness',fontsize=15)
+        axes.set_xlabel('Tiempo (horas)',fontsize=15)
+        
+        axes.text(0.19,0.9\
+                  ,'{} AERONET Data'.format(station_name)\
+                  ,ha="center",va="center",fontsize=13\
+                  ,bbox=dict(facecolor='none', edgecolor='black', boxstyle='round')\
+                  ,transform=axes.transAxes)
+        axes.text(0.15,0.79\
+                  ,day_df.index.min().date().strftime('%d/%m/%Y')\
+                  ,ha="center",va="center",fontsize=13\
+                  ,bbox=dict(facecolor='none', edgecolor='black', boxstyle='round')\
+                  ,transform=axes.transAxes)
     
-    ##
-    fig2, axes2 = plt.subplots(figsize=(9,4))
-    axes2.plot(day_df.index,day_df['440-870Angstrom'],lw=0.8)
-    axes2.set_ylim([-2,2])
-    axes2.set_xlim([hour_values.min(),hour_values.max()])
-    axes2.set_yticks(np.arange(-2,2.1,0.5))
-    axes2.set_xticks(hour_values)
-    axes2.xaxis.set_major_locator(dates.HourLocator())
-    axes2.xaxis.set_major_formatter(dates.DateFormatter('%H'))
-    axes2.set_ylabel('440-870Angstrom',fontsize=15)
-    axes2.set_xlabel('Tiempo (horas)',fontsize=15)
-    axes2.legend(loc=0,numpoints=1,fontsize = 9,fancybox=True)
-    axes2.text(0.1,0.9\
-              ,day_df.index.min().date().strftime('%d/%m/%Y')\
-              ,ha="center",va="center",fontsize=13\
-              ,bbox=dict(facecolor='none', edgecolor='black', boxstyle='round')\
-              ,transform=axes2.transAxes)
-    fig2.savefig(os.path.join(ppath,"{}_day{}_angstrom.jpeg".format(station_name,day_df.index.min().day)),dpi=500,bbox_inches='tight')
-    ##
-    
-    axes.set_ylim([0,1.5])
-    axes.set_xlim([hour_values.min(),hour_values.max()])
-    
-    axes.set_yticks(np.arange(0,1.6,0.1))
-    axes.set_xticks(hour_values)
-
-    axes.set_ylabel('Aerosol Optical Thickness',fontsize=15)
-    axes.set_xlabel('Tiempo (horas)',fontsize=15)
-    
-    axes.text(0.19,0.9\
-              ,'{} AERONET Data'.format(station_name)\
-              ,ha="center",va="center",fontsize=13\
-              ,bbox=dict(facecolor='none', edgecolor='black', boxstyle='round')\
-              ,transform=axes.transAxes)
-    axes.text(0.15,0.79\
-              ,day_df.index.min().date().strftime('%d/%m/%Y')\
-              ,ha="center",va="center",fontsize=13\
-              ,bbox=dict(facecolor='none', edgecolor='black', boxstyle='round')\
-              ,transform=axes.transAxes)
-
-    axes.xaxis.set_major_locator(dates.HourLocator())
-    axes.xaxis.set_major_formatter(dates.DateFormatter('%H'))
-    axes.legend(loc=0,numpoints=1,fontsize = 9,fancybox=True)
-    fig.savefig(os.path.join(ppath,"{}_day{}_AOT.jpeg".format(station_name,day_df.index.min().day)),dpi=500,bbox_inches='tight')
+        axes.xaxis.set_major_locator(dates.HourLocator())
+        axes.xaxis.set_major_formatter(dates.DateFormatter('%H'))
+        axes.legend(loc=0,numpoints=1,fontsize = 9,fancybox=True)
+        fig.savefig(os.path.join(ppath,"{}_day{}_AOT.jpeg".format(station_name,day_df.index.min().day)),dpi=500,bbox_inches='tight')
 
 #%%
 def day_plot(pd_indata,station_name,directory):
