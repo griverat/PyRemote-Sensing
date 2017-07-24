@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as dates
 import numpy as np
 import os, datetime
-
+import itertools
 #%%
 #function from http://blog.rtwilson.com/reading-aeronet-data-in-pandas-a-simple-helper-function/
 def read_aeronet(filename): 
@@ -22,9 +22,9 @@ def read_aeronet(filename):
     are left as-is.
     """
     dateparse = lambda x: pd.datetime.strptime(x, "%d:%m:%Y %H:%M:%S")
-    aeronet = pd.read_csv(filename, skiprows=4, na_values=['N/A'],
+    aeronet = pd.read_csv(filename, skiprows=4,index_col = False, na_values=['N/A'],
                           parse_dates={'times':[0,1]},
-                          date_parser=dateparse)
+                          date_parser=dateparse,usecols=range(7))
 
     aeronet = aeronet.set_index('times')
     del aeronet['Julian_Day']
@@ -41,31 +41,39 @@ def read_aeronet(filename):
 #%%
 def plot_series(pd_indata,station_name,ppath):
     fig, axes = plt.subplots(figsize=(9,4))
-    aot_list = [headers for headers in list(pd_indata) if 'AOT' in headers]
+    aod_list = [headers for headers in list(pd_indata) if 'AOD' in headers]
     
     daily_values = pd.date_range('01-01-{}'.format(pd_indata.index.min().year),'31-12-{}'.format(pd_indata.index.min().year),freq='D')
-    
+    marker = itertools.cycle(('x', 'v', 's', 'o', '*')) 
+
     months = list(set(pd_indata.index.month))
     for value in months:
         to_plot = pd_indata.loc[pd_indata.index.month==value]
         
-        for aot in aot_list:
-            axes.plot(to_plot.index,pd_indata[aot],lw=0.8)
+        for aod in aod_list:
+            axes.plot(to_plot.index,pd_indata[aod],lw=0.8, marker = marker.next(),ms=3)
         
         filtered = daily_values[daily_values.month == to_plot.index.min().month]
+        
         ##
         fig2, axes2 = plt.subplots(figsize=(9,4))
-        axes2.plot(to_plot.index,pd_indata['440-870Angstrom'],lw=0.8)
-        axes2.set_ylim([-2,2])
+        axes2.plot(to_plot.index,pd_indata['FineModeFraction_500nm[eta]'],lw=0.8,marker='d',ms=3)
+        axes2.set_ylim([0,1])
         axes2.set_xlim([filtered.min(),filtered.max()])
-        axes2.set_yticks(np.arange(-2,2.1,0.5))
+        axes2.set_yticks(np.arange(0,1.1,0.1))
         axes2.set_xticks(filtered)
         axes2.xaxis.set_major_locator(dates.DayLocator())
         axes2.xaxis.set_major_formatter(dates.DateFormatter('%d'))
-        axes2.set_ylabel('440-870Angstrom',fontsize=15)
+        axes2.set_ylabel('SDA Fine Mode Fraction',fontsize=15)
         axes2.set_xlabel('Tiempo (dias)',fontsize=15)
+        axes2.text(0.19,0.9\
+                  ,'{} AERONET Data'.format(station_name)\
+                  ,ha="center",va="center",fontsize=13\
+                  ,bbox=dict(facecolor='none', edgecolor='black', boxstyle='round')\
+                  ,transform=axes2.transAxes)
         axes2.legend(loc=0,numpoints=1,fontsize = 9,fancybox=True)
-        fig2.savefig(os.path.join(ppath,"{}_angstrom.jpeg".format(station_name)),dpi=500,bbox_inches='tight')
+        fig2.savefig(os.path.join(ppath,"{}_finefrac.png".format(station_name)),dpi=500,bbox_inches='tight')
+        fig2.clf()
         ##
         
         axes.set_ylim([0,1.5])
@@ -74,7 +82,7 @@ def plot_series(pd_indata,station_name,ppath):
         axes.set_yticks(np.arange(0,1.6,0.1))
         axes.set_xticks(filtered)
         
-        axes.set_ylabel('Aerosol Optical Thickness',fontsize=15)
+        axes.set_ylabel('SDA Aerosol Optical Depth',fontsize=15)
         axes.set_xlabel('Tiempo (dias)',fontsize=15)
         
         axes.text(0.19,0.9\
@@ -86,37 +94,47 @@ def plot_series(pd_indata,station_name,ppath):
         axes.xaxis.set_major_locator(dates.DayLocator())
         axes.xaxis.set_major_formatter(dates.DateFormatter('%d'))
         axes.legend(loc=0,numpoints=1,fontsize = 9,fancybox=True)
-        fig.savefig(os.path.join(ppath,"{}_AOT.jpeg".format(station_name)),dpi=500,bbox_inches='tight')
+        fig.savefig(os.path.join(ppath,"{}_SDA.png".format(station_name)),dpi=500,bbox_inches='tight')
+        fig.clf()
 
 #%%
-def single_plot(pd_indata,aot_list,date_limits,n,station_name,ppath):
+def single_plot(pd_indata,aod_list,date_limits,n,station_name,ppath):
     fig,axes = plt.subplots(figsize=(9,4))
     day_df = pd_indata.loc[(date_limits[n]<pd_indata.index)&(pd_indata.index<date_limits[n+1])]
-
+    
+    marker = itertools.cycle(('x', 'v', 's', 'o', '*')) 
+    
     if not day_df.empty:
-        for aot in aot_list:
-            axes.plot(day_df.index,day_df[aot],lw=0.8)
+    
+        for aod in aod_list:
+            axes.plot(day_df.index,day_df[aod],lw=0.8,marker = marker.next(),ms=2.7)
         
         hour_values = pd.date_range(day_df.index.min().date(),periods=24,freq='1h')
         
         ##
         fig2, axes2 = plt.subplots(figsize=(9,4))
-        axes2.plot(day_df.index,day_df['440-870Angstrom'],lw=0.8)
-        axes2.set_ylim([-2,2])
+        axes2.plot(day_df.index,day_df['FineModeFraction_500nm[eta]'],lw=0.8)
+        axes2.set_ylim([0,1])
         axes2.set_xlim([hour_values.min(),hour_values.max()])
-        axes2.set_yticks(np.arange(-2,2.1,0.5))
+        axes2.set_yticks(np.arange(0,1.1,0.1))
         axes2.set_xticks(hour_values)
         axes2.xaxis.set_major_locator(dates.HourLocator())
         axes2.xaxis.set_major_formatter(dates.DateFormatter('%H'))
-        axes2.set_ylabel('440-870Angstrom',fontsize=15)
+        axes2.set_ylabel('SDA Fine Mode Fraction',fontsize=15)
         axes2.set_xlabel('Tiempo (horas)',fontsize=15)
         axes2.legend(loc=0,numpoints=1,fontsize = 9,fancybox=True)
-        axes2.text(0.1,0.9\
+        axes2.text(0.15,0.79\
                   ,day_df.index.min().date().strftime('%d/%m/%Y')\
                   ,ha="center",va="center",fontsize=13\
                   ,bbox=dict(facecolor='none', edgecolor='black', boxstyle='round')\
                   ,transform=axes2.transAxes)
-        fig2.savefig(os.path.join(ppath,"{}_day{}_angstrom.jpeg".format(station_name,day_df.index.min().day)),dpi=500,bbox_inches='tight')
+        axes2.text(0.19,0.9\
+                      ,'{} AERONET Data'.format(station_name)\
+                      ,ha="center",va="center",fontsize=13\
+                      ,bbox=dict(facecolor='none', edgecolor='black', boxstyle='round')\
+                      ,transform=axes2.transAxes)
+        fig2.savefig(os.path.join(ppath,"{}_day{}_finefraction.png".format(station_name,day_df.index.min().day)),dpi=500,bbox_inches='tight')
+        fig2.clf()
         ##
         
         axes.set_ylim([0,1.5])
@@ -125,7 +143,7 @@ def single_plot(pd_indata,aot_list,date_limits,n,station_name,ppath):
         axes.set_yticks(np.arange(0,1.6,0.1))
         axes.set_xticks(hour_values)
     
-        axes.set_ylabel('Aerosol Optical Thickness',fontsize=15)
+        axes.set_ylabel('SDA Aerosol Optical Depth',fontsize=15)
         axes.set_xlabel('Tiempo (horas)',fontsize=15)
         
         axes.text(0.19,0.9\
@@ -142,23 +160,26 @@ def single_plot(pd_indata,aot_list,date_limits,n,station_name,ppath):
         axes.xaxis.set_major_locator(dates.HourLocator())
         axes.xaxis.set_major_formatter(dates.DateFormatter('%H'))
         axes.legend(loc=0,numpoints=1,fontsize = 9,fancybox=True)
-        fig.savefig(os.path.join(ppath,"{}_day{}_AOT.jpeg".format(station_name,day_df.index.min().day)),dpi=500,bbox_inches='tight')
+        fig.savefig(os.path.join(ppath,"{}_day{}_SDA.png".format(station_name,day_df.index.min().day)),dpi=500,bbox_inches='tight')
+        fig.clf()
 
 #%%
 def day_plot(pd_indata,station_name,directory):
-    aot_list = [headers for headers in list(pd_indata) if 'AOT' in headers]
+    aod_list = [headers for headers in list(pd_indata) if 'AOD' in headers]
     diff = datetime.timedelta(days=1)
     date_limits = pd.date_range(pd_indata.index.min().date(),pd_indata.index.max().date()+diff,freq='D')
     for n in range(len(date_limits)-1):
-        single_plot(pd_indata,aot_list,date_limits,n,station_name,directory)
+        single_plot(pd_indata,aod_list,date_limits,n,station_name,directory)
+        print "Dia {} listo".format(n+1)
+        break
     
 #%%
 if __name__ == '__main__':
     for files in os.listdir(os.getcwd()):
-        if files.endswith('.lev15'):
+        if files.endswith('.ONEILL_15'):
             df = read_aeronet(files)
             name = files.split('_')
-            plot_dir = os.path.join(os.getcwd(),'{}_plots'.format(name[2].split('.')[0]))
+            plot_dir = os.path.join(os.getcwd(),'{}_SDAplots'.format(name[2].split('.')[0]))
             if not os.path.exists(plot_dir):
                 os.mkdir(plot_dir)
             plot_series(df,name[2].split('.')[0],plot_dir)
