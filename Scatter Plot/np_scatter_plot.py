@@ -19,8 +19,8 @@ from scipy.stats.stats import pearsonr
 
 #%%
 #Defino los valores máximos de los ejes en el plot
-x_limit = 0.9
-y_limit = 0.9
+x_limit = 1
+y_limit = 1
 
 #%%
 #Datos de la estacion|
@@ -36,6 +36,25 @@ grid = "3x3"
 #Defino la fuente estilo LaTeX
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
+
+#%%
+#ref: https://stackoverflow.com/questions/25271388/python-percentage-rounding
+def round_to_100_percent(number_set, digit_after_decimal=2):
+    """
+        This function take a list of number and return a list of percentage, which represents the portion of each number in sum of all numbers
+        Moreover, those percentages are adding up to 100%!!!
+        Notice: the algorithm we are using here is 'Largest Remainder'
+        The down-side is that the results won't be accurate, but they are never accurate anyway:)
+    """
+    unround_numbers = [x / float(sum(number_set)) * 100 * 10 ** digit_after_decimal for x in number_set]
+    decimal_part_with_index = sorted([(index, unround_numbers[index] % 1) for index in range(len(unround_numbers))], key=lambda y: y[1], reverse=True)
+    remainder = 100 * 10 ** digit_after_decimal - sum([int(x) for x in unround_numbers])
+    index = 0
+    while remainder > 0:
+        unround_numbers[decimal_part_with_index[index][0]] += 1
+        remainder -= 1
+        index = (index + 1) % len(number_set)
+    return [int(x) / float(10 ** digit_after_decimal) for x in unround_numbers]
 
 #%%
 #Defino la funcion para rmse y mae
@@ -109,10 +128,15 @@ _11line = np.linspace(0,x_limit,2)
 fig, axes = plt.subplots(figsize=(7,7))
 #axes.scatter(aeronet_data,modis_data)
 
+#Calculamos los porcentajes:
+len_list = [len(above_ee),len(within_ee),len(below_ee)]
+percnt_list = round_to_100_percent(len_list)
+percnt_list = [x/100. for x in percnt_list]
+
 #Plottear la data: above EE, within EE y below EE
-axes.scatter(xabove_ee,above_ee,edgecolors="black",linewidth=1,s=10,c="blue",label="%\tAbove EE\t=\t{:.2%}".format(float(len(above_ee))/n_tot))
-axes.scatter(xwithin_ee,within_ee,edgecolors="black",linewidth=1,s=10,c="red",label="%\tWithin EE\t=\t{:.2%}".format(float(len(within_ee))/n_tot))
-axes.scatter(xbelow_ee,below_ee,edgecolors="black",linewidth=1,s=10,c="green",label="%\tBelow EE\t=\t{:.2%}".format(float(len(below_ee))/n_tot))
+axes.scatter(xabove_ee,above_ee,edgecolors="black",linewidth=1,s=10,c="blue",label="%\tAbove EE\t=\t{:.2%}".format(percnt_list[0]))
+axes.scatter(xwithin_ee,within_ee,edgecolors="black",linewidth=1,s=10,c="red",label="%\tWithin EE\t=\t{:.2%}".format(percnt_list[1]))
+axes.scatter(xbelow_ee,below_ee,edgecolors="black",linewidth=1,s=10,c="green",label="%\tBelow EE\t=\t{:.2%}".format(percnt_list[2]))
 
 #Inserto la leyenda del plot
 axes.legend(loc=2,scatterpoints=1,labelspacing=0.5,fontsize=13.5,handlelength=0.6,frameon=False)
