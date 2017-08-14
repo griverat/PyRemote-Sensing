@@ -17,10 +17,11 @@ def check_dir():
         os.chdir(tif_path)
     return [x for x in os.listdir(os.getcwd()) if x.endswith('.txt')]
 
-def get_pd_table(data_file):
+def get_pd_table(data_file,fill_value=np.nan):
     data = pd.read_table(data_file, parse_dates=[0],infer_datetime_format = True)
     data = data.set_index('Date')
-    data[data==-0.1]=np.nan
+    data[data<0.]=fill_value
+    data = data.sort_index()
     return data
 
 def interp_nan(pd_table):
@@ -67,7 +68,7 @@ def plot(pd_indata,pd_indata2=None,legend_name='NDVI Data',legend2=None,rmse = N
     
     #Ajuste de eje
     axes.set_xlim([pd_indata.index.min(),pd_indata.index.max()])
-    axes.set_ylim([pd_indata['NDVI_data'].min()-pd_indata['NDVI_data'].min(),pd_indata['NDVI_data'].max()+0.02])
+    axes.set_ylim([pd_indata['NDVI_data'].min()-pd_indata['NDVI_data'].min(),pd_indata['NDVI_data'].max()+0.11])
 
     #Nombre de los ejes
     axes.set_xlabel("Fecha",fontsize=12)
@@ -83,14 +84,14 @@ def plot(pd_indata,pd_indata2=None,legend_name='NDVI Data',legend2=None,rmse = N
 def main():
     data_file = check_dir()[0]
     ndvi_data = interp_nan(get_pd_table(data_file))
-    plot(get_pd_table(data_file))
+    plot(get_pd_table(data_file,0),legend2='Original_NDVI',save=True)
     ndvi_filt = apply_savgol(ndvi_data,13,4)
 #    plot(ndvi_filt,legend_name='Savitzky-Golay NDVI')
     plot(ndvi_data,ndvi_filt,legend2='Savitzky-Golay NDVI',rmse=rmse(ndvi_filt,ndvi_data),save=True)
     print 'RMSE inicial {}'.format(rmse(ndvi_filt,ndvi_data))
     w = get_weights(ndvi_filt,ndvi_data)
     w.columns = ['NDVI_data']
-    for i in range(3):
+    for i in range(2):
         new_serie = create_new_serie(ndvi_filt,ndvi_data)
         new_serie_filt = apply_savgol(new_serie)
         fitting_index = abs(new_serie_filt-ndvi_data)*w
