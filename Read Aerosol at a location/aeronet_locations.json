@@ -1,0 +1,31 @@
+{   
+    "huancayo":
+    {"station_name": "Huancayo",
+    "lat": -12.04020,
+    "lon": -75.32090
+    },
+    
+    "riobranco":
+    {   "station_name": "Rio Branco",
+        "lat":-9.95747,
+        "lon":-67.86935
+    },
+    
+    "lapaz":
+    {   "station_name": "La Paz",
+        "lat":-16.53900,
+        "lon":-68.06647
+    },
+
+    "arica":
+    {   "station_name": "Arica",
+        "lat":-18.47167,
+        "lon":-70.31333
+    },
+
+    "medellin":
+    {   "station_name": "Medellin",
+        "lat":6.26067,
+        "lon":-75.57791
+    }
+}

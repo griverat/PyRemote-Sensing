@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Mon Dec 05 09:25:08 2016
-
 @author: gerar
 """
 
