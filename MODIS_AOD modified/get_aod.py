@@ -5,7 +5,7 @@ Created on Mon Feb 26 02:27:52 2018
 @author: Gerardo A. Rivera Tello
 """
 
-import os, ujson, gdal, time
+import os, ujson, gdal, time, datetime
 import numpy as np
 import pandas as pd
 from pyproj import Geod
@@ -52,7 +52,7 @@ def interp_nan(grid):
 #%%
 def load_modis(hdf):
     ds_names = get_sds(hdf)
-    strings = ['Latitude','Longitude']
+    strings = ['Latitude','Longitude', 'Scan_Start_Time (64-bit floating-point)']
     latlon_sds = [line[0] for line in ds_names if any(s in line[1] for s in strings)]
     lon_hdf = gdal.Open(latlon_sds[0])
     _lon = lon_hdf.ReadAsArray()
@@ -60,7 +60,9 @@ def load_modis(hdf):
     lat_hdf = gdal.Open(latlon_sds[1])
     _lat = lat_hdf.ReadAsArray()
     lat_hdf = None
-    return _lat,_lon
+    time_hdf = gdal.Open(latlon_sds[2])
+    _time = time_hdf.ReadAsArray()
+    return _lat,_lon,_time
 
 #%%
 def get_data(sds):
@@ -86,7 +88,7 @@ def calc_grid(data,x,y,dim):
     elif ~np.isnan(data[y][x]):
         return data[y][x]
     else:
-        return False
+        return 'wat'
 
 #%%
 def get_distance(an_lon,an_lat,lon,lat):
@@ -94,23 +96,26 @@ def get_distance(an_lon,an_lat,lon,lat):
     return wgs84_geod.inv(an_lon,an_lat,lon,lat)[2]
 
 #%%
-def get_time(metadata,sds,shape,y):
+def get_time(metadata,time,x,y):
     day = metadata['RANGEBEGINNINGDATE']
-    mtime = metadata['RANGEBEGINNINGTIME'][0:5]
-    time_for_pixel = 300.0/(shape[0])
-    if "MOD" in sds:
-        passing_time = int(time_for_pixel*(shape[0]-(y+1))/60)
-    elif "MYD" in sds:
-        passing_time = int(time_for_pixel*(y+1)/60)
-    mtime = [int(t) for t in mtime.split(":")]
-    mtime[1] = mtime[1] + passing_time
-    if mtime[1] >= 60:
-        mtime[1] -= 60
-        mtime[0] += 1
-        end_time = ":".join([str(item).zfill(2) for item in mtime])
-    else:
-        end_time = ":".join([str(item).zfill(2) for item in mtime])
-    return day, end_time
+    passing_t = datetime.timedelta(seconds=time[y,x])
+    fixed_t = datetime.datetime(1993,1,1)
+    final_t = fixed_t+passing_t
+#    mtime = metadata['RANGEBEGINNINGTIME'][0:5]
+#    time_for_pixel = 300.0/(shape[0])
+#    if "MOD" in sds:
+#        passing_time = int(time_for_pixel*(shape[0]-(y+1))/60)
+#    elif "MYD" in sds:
+#        passing_time = int(time_for_pixel*(y+1)/60)
+#    mtime = [int(t) for t in mtime.split(":")]
+#    mtime[1] = mtime[1] + passing_time
+#    if mtime[1] >= 60:
+#        mtime[1] -= 60
+#        mtime[0] += 1
+#        end_time = ":".join([str(item).zfill(2) for item in mtime])
+#    else:
+#        end_time = ":".join([str(item).zfill(2) for item in mtime])
+    return day, final_t.strftime('%X')
 
 #%%
 def main(aeronet_station,template,num):
@@ -123,10 +128,10 @@ def main(aeronet_station,template,num):
 #    df3 = df1.copy()
 #    df5 = df1.copy()
     hdf_files = get_files('.hdf')
-    with open("{}5x5_MODIS.txt".format(aeronet_station),"a") as file5x5_end, open("{}3x3_MODIS.txt".format(aeronet_station),"a") as file3x3_end, open("{}1x1_MODIS.txt".format(aeronet_station),'a') as file1x1_end:
+    with open("{}3x3_MODIS.txt".format(aeronet_station),"w") as file3x3_end, open("{}Gio_MODIS.txt".format(aeronet_station),'w') as fileGio_end:
         for hdf in hdf_files:
             sds = template.format(hdf,num)
-            lat,lon = load_modis(hdf)
+            lat,lon, time = load_modis(hdf)
             if not (lat.min()<anlat<lat.max()) or not (lon.min()<anlon<lon.max()):
                 continue
             if lat[lat==-999.].size != 0:
@@ -139,27 +144,30 @@ def main(aeronet_station,template,num):
     #            lon[lon==-999.] = np.nan
     #            lon = interp_nan(lon)
             dist = get_distance(np.full(lon.shape,anlon),np.full(lat.shape,anlat),lon,lat)
-            if dist.min() >  2150 :
+            data, meta = get_data(sds)
+            giov = np.nanmean(data[np.where(dist<=27500)])
+            
+            y,x = np.unravel_index(dist.argmin(),dist.shape)
+            day, end_time = get_time(meta,time,x,y)
+            
+            if ~np.isnan(giov):
+                fileGio_end.write("{}\t{}\t{}\n".format(day,end_time,giov))
+            
+            if dist.min() >  4242 :
+                del data, meta, dist, giov
                 continue
             print 'Done {}\n'.format(hdf)
-            y,x = np.unravel_index(dist.argmin(),dist.shape)
-            data, meta = get_data(sds)
-            day, end_time = get_time(meta,sds,data.shape,y)
+            
             data = np.pad(data,2,padwithnan)
             x += 2
             y += 2
-            v1 = calc_grid(data,x,y,1)
             v3 = calc_grid(data,x,y,3)
-            v5 = calc_grid(data,x,y,5)
 #            df1 = df1.append({'Date':day,'Time':end_time,'Data':v1},ignore_index=True)
 #            df3 = df3.append({'Date':day,'Time':end_time,'Data':v3},ignore_index=True)
 #            df5 = df5.append({'Date':day,'Time':end_time,'Data':v5},ignore_index=True)
-            if v5 != False:
-                file5x5_end.write("{}\t{}\t{}\n".format(day,end_time,v5))
             if v3 != False:
                 file3x3_end.write("{}\t{}\t{}\n".format(day,end_time,v3))
-            if v1 != False:
-                file1x1_end.write("{}\t{}\t{}\n".format(day,end_time,v1))
+                
 #        df1.to_csv('{}1x1_MODIS.txt'.format(aeronet_station),header=None,index=None,sep='\t')
 #        df3.to_csv('{}3x3_MODIS.txt'.format(aeronet_station),header=None,index=None,sep='\t')
 #        df5.to_csv('{}5x5_MODIS.txt'.format(aeronet_station),header=None,index=None,sep='\t')

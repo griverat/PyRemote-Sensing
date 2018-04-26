@@ -67,7 +67,7 @@ class Match_Data(object):
         if len(passer[0]) != 0:
             idx_closest_date = np.argmin(deltas[passer[0]])
             #Diccionario que contenerá los valores cercanos al dato de entrada
-            res={"closest_time":self.aeronet_end["Time_AERONET"].ix[idx_closest_date], "aod_value": self.aeronet_end["AOD_AERONET"].ix[idx_closest_date]}
+            res={"closest_time":self.aeronet_end["Time_AERONET"].loc[idx_closest_date], "aod_value": self.aeronet_end["AOD_AERONET"].loc[idx_closest_date]}
             #indices del diccionario para ser introducidos en pd.Series
             idx = ['closest_time', 'aod_value']
             return pd.Series(res, index=idx)
