@@ -24,7 +24,7 @@ y_limit = 0.9
 
 #%%
 #Datos de la estacion|
-AERONET_station = "Granada"
+AERONET_station = "La Paz"
 years_range="2002-2017"
 x_label = r"AERONET Level 2.0 AOD $\mu m$"
 y_label = "MODIS TERRA AOD at 10km"
