@@ -41,13 +41,13 @@ matplotlib.rcParams['font.family'] = 'STIXGeneral'
 #Defino la funcion para rmse y mae
 def rmse(predictions, targets):
     return np.sqrt(((predictions - targets) ** 2).mean())
-
+7
 def mae(predictions,targets):
     return np.abs((predictions - targets)).mean()
 #%%
 #Encuentro el archivo en formato txt a plottear
 file_to_plot = [x for x in os.listdir(os.getcwd()) \
-               if x.endswith("{}{}_matched_data.txt".format(\
+               if x.endswith("{}{}_matched_data_end.txt".format(\
                              AERONET_station.lower().replace(" ",""),grid))]
 #Abro el archivo y guardo los datos en numpy.arrays (dtype=float)
 modis_data,aeronet_data = np.loadtxt(file_to_plot[0],skiprows = 1,usecols=(2,4),unpack=True)
