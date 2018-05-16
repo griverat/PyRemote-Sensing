@@ -47,52 +47,52 @@ def helper(x):
     return pd.DataFrame({'AOD_MODIS':x['AOD_MODIS'].values,'AOD_AERONET':x['AOD_AERONET'].values})
 
 #%%
+def db_results(row_names,data):
+    ix_names=['RMSE','R_deming','R_pearson','MAE','BIAS','MEAN_MODIS','MEAN_AERONET']
+    if len(row_names) == 1:
+        db = pd.DataFrame(columns=row_names,index=ix_names)
+        db.loc['RMSE']=rmse(data[0],data[1])
+        db.loc['R_deming']=r_deming(data[0],data[1])
+        db.loc['R_pearson']=pearsonr(data[0],data[1])[0]
+        db.loc['MAE']=mae(data[0],data[1])
+        db.loc['BIAS']=bias(data[0],data[1])
+        db.loc['MEAN_data[0]']=np.mean(data[0])
+        db.loc['MEAN_data[1]']=np.mean(data[1])
+    else:
+        db = pd.DataFrame(columns=range(1,13),index=ix_names)
+        for col in row_names:
+            t_data = data.loc[col]
+            if len(t_data) <= 2:
+                continue
+            db.loc['RMSE'][col]=rmse(t_data['AOD_MODIS'],t_data['AOD_AERONET'])
+            db.loc['R_deming'][col]=r_deming(t_data['AOD_MODIS'],t_data['AOD_AERONET'])
+            db.loc['R_pearson'][col]=pearsonr(t_data['AOD_MODIS'],t_data['AOD_AERONET'])[0]
+            db.loc['MAE'][col]=mae(t_data['AOD_MODIS'],t_data['AOD_AERONET'])
+            db.loc['BIAS'][col]=bias(t_data['AOD_MODIS'],t_data['AOD_AERONET'])
+            db.loc['MEAN_MODIS'][col]=np.mean(t_data['AOD_MODIS'])
+            db.loc['MEAN_AERONET'][col]=np.mean(t_data['AOD_AERONET'])
+    
+    return db
+
+#%%
 def main():
     files = [x for x in os.listdir(os.getcwd()) if x.endswith("matched_data_end.txt")]
+    
     for _file in files:
         modis, aeronet = get_data(_file)
-        general_data = pd.DataFrame(columns=['Statistics'],index=['RMSE','R_deming','R_pearson','MAE','BIAS','MEAN_MODIS','MEAN_AERONET'])
-        general_data.loc['RMSE']=rmse(modis,aeronet)
-        general_data.loc['R_deming']=r_deming(modis,aeronet)
-        general_data.loc['R_pearson']=pearsonr(modis,aeronet)[0]
-        general_data.loc['MAE']=mae(modis,aeronet)
-        general_data.loc['BIAS']=bias(modis,aeronet)
-        general_data.loc['MEAN_MODIS']=np.mean(modis)
-        general_data.loc['MEAN_AERONET']=np.mean(aeronet)
+        
+        general_data = db_results(['Statistics'],[modis,aeronet])
         
         data = pd.read_table(_file,usecols=[0,2,4])
         data['Date_MODIS'] = data['Date_MODIS'].astype('datetime64[ns]')
+        
         m_data = data.groupby([data['Date_MODIS'].dt.month]).apply(helper)
         m_index = m_data.index.get_level_values(0).unique()
-        
-        m_end = pd.DataFrame(columns=m_index,index=['RMSE','R_deming','R_pearson','MAE','BIAS','MEAN_MODIS','MEAN_AERONET'])
-        for values in m_index:
-            month_Data = m_data.loc[values]
-            if len(month_Data)==1:
-                continue
-            m_end.loc['RMSE'][values]=rmse(month_Data['AOD_MODIS'],month_Data['AOD_AERONET'])
-            m_end.loc['R_deming'][values]=r_deming(month_Data['AOD_MODIS'],month_Data['AOD_AERONET'])
-            m_end.loc['R_pearson'][values]=pearsonr(month_Data['AOD_MODIS'],month_Data['AOD_AERONET'])[0]
-            m_end.loc['MAE'][values]=mae(month_Data['AOD_MODIS'],month_Data['AOD_AERONET'])
-            m_end.loc['BIAS'][values]=bias(month_Data['AOD_MODIS'],month_Data['AOD_AERONET'])
-            m_end.loc['MEAN_MODIS'][values]=np.mean(month_Data['AOD_MODIS'])
-            m_end.loc['MEAN_AERONET'][values]=np.mean(month_Data['AOD_AERONET'])
+        m_end = db_results(m_index,m_data)
         
         y_data = data.groupby([data['Date_MODIS'].dt.year]).apply(helper)
         y_index = y_data.index.get_level_values(0).unique()
-        
-        y_end = pd.DataFrame(columns=y_index,index=['RMSE','R_deming','R_pearson','MAE','BIAS','MEAN_MODIS','MEAN_AERONET'])
-        for values in y_index:
-            year_Data = y_data.loc[values]
-            if len(year_Data)==1:
-                continue
-            y_end.loc['RMSE'][values]=rmse(year_Data['AOD_MODIS'],year_Data['AOD_AERONET'])
-            y_end.loc['R_deming'][values]=r_deming(year_Data['AOD_MODIS'],year_Data['AOD_AERONET'])
-            y_end.loc['R_pearson'][values]=pearsonr(year_Data['AOD_MODIS'],year_Data['AOD_AERONET'])[0]
-            y_end.loc['MAE'][values]=mae(year_Data['AOD_MODIS'],year_Data['AOD_AERONET'])
-            y_end.loc['BIAS'][values]=bias(year_Data['AOD_MODIS'],year_Data['AOD_AERONET'])
-            y_end.loc['MEAN_MODIS'][values]=np.mean(year_Data['AOD_MODIS'])
-            y_end.loc['MEAN_AERONET'][values]=np.mean(year_Data['AOD_AERONET'])
+        y_end = db_results(y_index,y_data)
         
         writer = pd.ExcelWriter('statistics_{}.xlsx'.format(_file[:-21]))
         general_data.to_excel(writer,'Estadistica_general')
@@ -100,7 +100,6 @@ def main():
         y_end.to_excel(writer,'Estadistica_anual')
         writer.save()
     return general_data, m_end, y_end
-    #Abro el archivo y guardo los datos en numpy.arrays (dtype=float)
 
 #%%
 if __name__ == '__main__':
