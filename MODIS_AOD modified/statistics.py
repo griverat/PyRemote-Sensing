@@ -47,8 +47,8 @@ def helper(x):
     return pd.DataFrame({'AOD_MODIS':x['AOD_MODIS'].values,'AOD_AERONET':x['AOD_AERONET'].values})
 
 #%%
-def db_results(row_names,data):
-    ix_names=['RMSE','R_deming','R_pearson','MAE','BIAS','MEAN_MODIS','MEAN_AERONET']
+def db_results(row_names,data,s=None,e=None):
+    ix_names=['RMSE','R_deming','R_pearson','MAE','BIAS','MEAN_MODIS','MEAN_AERONET','N']
     if len(row_names) == 1:
         db = pd.DataFrame(columns=row_names,index=ix_names)
         db.loc['RMSE']=rmse(data[0],data[1])
@@ -56,10 +56,11 @@ def db_results(row_names,data):
         db.loc['R_pearson']=pearsonr(data[0],data[1])[0]
         db.loc['MAE']=mae(data[0],data[1])
         db.loc['BIAS']=bias(data[0],data[1])
-        db.loc['MEAN_data[0]']=np.mean(data[0])
-        db.loc['MEAN_data[1]']=np.mean(data[1])
+        db.loc['MEAN_MODIS']=np.mean(data[0])
+        db.loc['MEAN_AERONET']=np.mean(data[1])
+        db.loc['N']=len(data[0])
     else:
-        db = pd.DataFrame(columns=range(1,13),index=ix_names)
+        db = pd.DataFrame(columns=range(s,e),index=ix_names)
         for col in row_names:
             t_data = data.loc[col]
             if len(t_data) <= 2:
@@ -71,7 +72,7 @@ def db_results(row_names,data):
             db.loc['BIAS'][col]=bias(t_data['AOD_MODIS'],t_data['AOD_AERONET'])
             db.loc['MEAN_MODIS'][col]=np.mean(t_data['AOD_MODIS'])
             db.loc['MEAN_AERONET'][col]=np.mean(t_data['AOD_AERONET'])
-    
+            db.loc['N'][col]=len(t_data['AOD_MODIS'])
     return db
 
 #%%
@@ -88,11 +89,11 @@ def main():
         
         m_data = data.groupby([data['Date_MODIS'].dt.month]).apply(helper)
         m_index = m_data.index.get_level_values(0).unique()
-        m_end = db_results(m_index,m_data)
+        m_end = db_results(m_index,m_data,1,13)
         
         y_data = data.groupby([data['Date_MODIS'].dt.year]).apply(helper)
         y_index = y_data.index.get_level_values(0).unique()
-        y_end = db_results(y_index,y_data)
+        y_end = db_results(y_index,y_data,y_index.min(),y_index.max()+1)
         
         writer = pd.ExcelWriter('statistics_{}.xlsx'.format(_file[:-21]))
         general_data.to_excel(writer,'Estadistica_general')
