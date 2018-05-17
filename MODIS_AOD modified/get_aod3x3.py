@@ -163,7 +163,7 @@ def main(aeronet_station,template,num):
 #                del data, meta, dist, giov
                 continue
             data, meta = get_data(sds)
-            if 'L2' in hdf and num == 52:
+            if 'L2' in hdf and num == 52 or num == 66:
                 qa = get_qa(template.format(hdf,61))
                 data *=qa
                 data[data==0.]=np.nan
