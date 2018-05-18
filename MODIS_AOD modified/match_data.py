@@ -49,9 +49,9 @@ class Match_Data(object):
         #AERONET
         dateparse = lambda x: pd.datetime.strptime(x, '%d/%m/%Y %H:%M:%S')
         self.aeronet_data = pd.read_table(aeronet_file, header = None, parse_dates = [[0,1]], usecols=[0,1],date_parser=dateparse)
-        self.aeronet_end = pd.read_table(aeronet_file, header = None, usecols=[1,2])
+        self.aeronet_end = pd.read_table(aeronet_file, header = None, usecols=[2])
         self.aeronet_data.columns = ["Date_AERONET Time_AERONET"]
-        self.aeronet_end.columns=["Time_AERONET", "AOD_AERONET"]
+        self.aeronet_end.columns=["AOD_AERONET"]
         print "Archivos Leidos.\nProcesando..."
 
     #Defino la funcion que encontrara los valores cercanos a la fecha y hora MODIS
@@ -65,21 +65,21 @@ class Match_Data(object):
         passer = np.where(deltas < pd.Timedelta("00:30:59"))
         #Compruebo si existen coincidencias para guardar los valores
         if len(passer[0]) != 0:
-            idx_closest_date = np.argmin(deltas[passer[0]])
+#            idx_closest_date = np.argmin(deltas[passer[0]])
             #Diccionario que contenerá los valores cercanos al dato de entrada
-            res={"closest_time":self.aeronet_end["Time_AERONET"].loc[idx_closest_date], "aod_value": self.aeronet_end["AOD_AERONET"].loc[idx_closest_date]}
+            res={"aod_value": self.aeronet_end["AOD_AERONET"].loc[passer[0]].mean()}
             #indices del diccionario para ser introducidos en pd.Series
-            idx = ['closest_time', 'aod_value']
+            idx = ['aod_value']
             return pd.Series(res, index=idx)
         #En caso de no haber la fecha MODIS en la base de datos AERONET
         #lleno los valosre con NaT(Not a Time) y NaN(Not a Number)
         elif len(passer[0]) == 0:
-            res = {"closest_time": "NaN","aod_value": "NaN"}
-            idx = ['closest_time', 'aod_value']
+            res = {"aod_value": "NaN"}
+            idx = ['aod_value']
             return pd.Series(res, index=idx)
     
     def match_aod(self,modis_grid,station_name):
-        self.modis_end[['Time_AERONET', 'AOD_AERONET']] = self.modis_data["Date_MODIS Time_MODIS"].apply(self.find_closest_date,args=[self.aeronet_data["Date_AERONET Time_AERONET"]])
+        self.modis_end[['AOD_AERONET']] = self.modis_data["Date_MODIS Time_MODIS"].apply(self.find_closest_date,args=[self.aeronet_data["Date_AERONET Time_AERONET"]])
         self.modis_end.to_csv("{}{}_matched_data.txt".format(station_name,modis_grid),index =None, sep="\t")
 
 #%%
