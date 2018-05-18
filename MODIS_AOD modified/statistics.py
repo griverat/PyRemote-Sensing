@@ -29,10 +29,10 @@ def r_deming(x,y):
     sxx = np.sum(np.power(x-x_mean,2.))/(len(x)-1.)
     syy = np.sum(np.power(y-y_mean,2.))/(len(x)-1.)
     sxy = np.sum((x-x_mean)*(y-y_mean))/(len(x)-1.)
-    lamb = np.var(y)/np.var(x)
+    lamb = 1#np.var(y)/np.var(x)
     b1 = (syy-lamb*sxx+np.sqrt((syy-lamb*sxx)**2 +4*lamb*sxy**2))/(2*sxy)
-#    b0 = y_mean - x_mean*b1
-    return b1
+    b0 = y_mean - x_mean*b1
+    return [b1,b0]
  
 #%%
 def get_data(_file):
@@ -52,7 +52,7 @@ def db_results(row_names,data,s=None,e=None):
     if len(row_names) == 1:
         db = pd.DataFrame(columns=row_names,index=ix_names)
         db.loc['RMSE']=rmse(data[0],data[1])
-        db.loc['R_deming']=r_deming(data[0],data[1])
+        db.loc['R_deming']=r_deming(data[1],data[0])
         db.loc['R_pearson']=pearsonr(data[0],data[1])[0]
         db.loc['MAE']=mae(data[0],data[1])
         db.loc['BIAS']=bias(data[0],data[1])
@@ -66,7 +66,7 @@ def db_results(row_names,data,s=None,e=None):
             if len(t_data) <= 2:
                 continue
             db.loc['RMSE'][col]=rmse(t_data['AOD_MODIS'],t_data['AOD_AERONET'])
-            db.loc['R_deming'][col]=r_deming(t_data['AOD_MODIS'],t_data['AOD_AERONET'])
+            db.loc['R_deming'][col]=r_deming(t_data['AOD_AERONET'],t_data['AOD_MODIS'])
             db.loc['R_pearson'][col]=pearsonr(t_data['AOD_MODIS'],t_data['AOD_AERONET'])[0]
             db.loc['MAE'][col]=mae(t_data['AOD_MODIS'],t_data['AOD_AERONET'])
             db.loc['BIAS'][col]=bias(t_data['AOD_MODIS'],t_data['AOD_AERONET'])
