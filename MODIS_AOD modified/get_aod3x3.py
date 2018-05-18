@@ -80,7 +80,7 @@ def get_data(sds):
 def calc_grid(data,x,y,dim):
     if dim != 1:
         subset = data[y-(dim/2):y+(dim/2+1),x-(dim/2):x+(dim/2+1)]
-        is_nan = np.count_nonzero(~np.isnan(subset))
+        is_nan = subset.size - np.count_nonzero(np.isnan(subset))
         if is_nan != 0:
             return np.nanmean(subset)
         else:
