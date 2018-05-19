@@ -64,7 +64,7 @@ class Match_Data(object):
         #+-30 min
         passer = np.where(deltas < pd.Timedelta("00:30:59"))
         #Compruebo si existen coincidencias para guardar los valores
-        if len(passer[0]) != 0:
+        if len(passer[0]) >= 2:
 #            idx_closest_date = np.argmin(deltas[passer[0]])
             #Diccionario que contenerá los valores cercanos al dato de entrada
             res={"aod_value": self.aeronet_end["AOD_AERONET"].loc[passer[0]].mean()}
