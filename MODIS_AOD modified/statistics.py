@@ -47,18 +47,32 @@ def helper(x):
     return pd.DataFrame({'AOD_MODIS':x['AOD_MODIS'].values,'AOD_AERONET':x['AOD_AERONET'].values})
 
 #%%
+def ee_fraction(predictions, targets):
+    _ee = np.abs(0.05 + 0.15*targets)
+    ee_plus = targets + _ee
+    ee_minus = targets - _ee
+    n_tot = len(predictions)
+    within_ee = predictions[np.logical_and(ee_minus<predictions,predictions<ee_plus)]
+    return '{:.2%}'.format(float(len(within_ee))/n_tot)
+#    m_plus,b_plus = np.polyfit(targets,ee_plus,1)
+#    m_minus,b_minus = np.polyfit(targets,ee_minus,1)
+
+#%%
 def db_results(row_names,data,s=None,e=None):
-    ix_names=['RMSE','R_deming','R_pearson','MAE','BIAS','MEAN_MODIS','MEAN_AERONET','N']
+    ix_names=['RMSE','R_pearson','MAE','BIAS','m_deming','b_deming','MEAN_MODIS','MEAN_AERONET','N','f']
     if len(row_names) == 1:
         db = pd.DataFrame(columns=row_names,index=ix_names)
         db.loc['RMSE']=rmse(data[0],data[1])
-        db.loc['R_deming']=r_deming(data[1],data[0])
         db.loc['R_pearson']=pearsonr(data[0],data[1])[0]
         db.loc['MAE']=mae(data[0],data[1])
         db.loc['BIAS']=bias(data[0],data[1])
+        m,b = r_deming(data[1],data[0])
+        db.loc['m_deming']=m
+        db.loc['b_deming']=b
         db.loc['MEAN_MODIS']=np.mean(data[0])
         db.loc['MEAN_AERONET']=np.mean(data[1])
         db.loc['N']=len(data[0])
+        db.loc['f']=ee_fraction(data[0],data[1])
     else:
         db = pd.DataFrame(columns=range(s,e),index=ix_names)
         for col in row_names:
@@ -66,13 +80,16 @@ def db_results(row_names,data,s=None,e=None):
             if len(t_data) <= 2:
                 continue
             db.loc['RMSE'][col]=rmse(t_data['AOD_MODIS'],t_data['AOD_AERONET'])
-            db.loc['R_deming'][col]=r_deming(t_data['AOD_AERONET'],t_data['AOD_MODIS'])
             db.loc['R_pearson'][col]=pearsonr(t_data['AOD_MODIS'],t_data['AOD_AERONET'])[0]
             db.loc['MAE'][col]=mae(t_data['AOD_MODIS'],t_data['AOD_AERONET'])
             db.loc['BIAS'][col]=bias(t_data['AOD_MODIS'],t_data['AOD_AERONET'])
+            m,b = r_deming(t_data['AOD_AERONET'],t_data['AOD_MODIS'])
+            db.loc['m_deming'][col]=m
+            db.loc['b_deming'][col]=b
             db.loc['MEAN_MODIS'][col]=np.mean(t_data['AOD_MODIS'])
             db.loc['MEAN_AERONET'][col]=np.mean(t_data['AOD_AERONET'])
             db.loc['N'][col]=len(t_data['AOD_MODIS'])
+            db.loc['f'][col]=ee_fraction(t_data['AOD_MODIS'],t_data['AOD_AERONET'])
     return db
 
 #%%
